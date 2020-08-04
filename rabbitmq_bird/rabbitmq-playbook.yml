@@ -1,0 +1,36 @@
+---
+- hosts: [Client]
+  tasks:
+  - name: Add rabbit repo
+    shell: echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+  - name: add trusted key
+    shell: wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+  - name: Update apt packages
+    apt:
+      update_cache: yes
+  - name: install rabbitmq
+    apt:
+      name: rabbitmq-server
+      state: present
+  - name: enable rabbitmq plugins
+    rabbitmq_plugin:
+      names: rabbitmq_management
+      state: enabled
+  - name: start rabbitmq service
+    systemd:
+      name: tomcat
+      state: started
+      enabled: true
+      daemon_reload: true
+  - name: add rabbitmq users bird
+    rabbitmq_user:
+      user: bird
+      password: BIRDWelcome@123
+      vhost: /
+      tags: administrator
+      configure_priv: .*
+      read_priv: .*
+      write_priv: .*
+      state: present
+
+
